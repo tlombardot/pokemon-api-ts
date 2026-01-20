@@ -3,7 +3,13 @@ export interface AllPokemon {
     count: number;
     next:string
     previous:string
-    results: Pokemon[]
+    results: PokemonURL[]
+}
+
+// Pokemon Name & Url de la response de l'API
+export interface PokemonURL {
+    name: string
+    url: string
 }
 
 // Response PokéApi d'un pokémon en détail
