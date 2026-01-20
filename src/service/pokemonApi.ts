@@ -22,9 +22,10 @@ async function getPokemon(id:number){
 export async function getPokemonList(request:AllPokemon | undefined, index:number, end:number){
     if (!request) return []
     const limitedRequest = request.results.slice(index,end)
-    return await Promise.all(
+    const results =  await Promise.all(
          limitedRequest.map(async p => {
             const id = p.url.split("/")[6]
             return await getPokemon(Number(id))
     }))
+    return results.filter((p): p is Pokemon => p != undefined)
 }
