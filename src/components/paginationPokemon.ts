@@ -15,7 +15,6 @@ export class PaginationPokemon extends HTMLElement{
     private render(){
         console.log(this._count)
         this.innerHTML=`
-                <div class="flex justify-center gap-4 mt-8">
                     <button id="btn-prev" class="bg-gray-700/70 text-white px-4 py-2 rounded-3xl hover:bg-gray-600/70 disabled:opacity-10 disabled:hover:bg-gray700/70" ${this._offset === 0 ? 'disabled' : ''}>
                         Précédent
                     </button>
@@ -23,7 +22,6 @@ export class PaginationPokemon extends HTMLElement{
                     <button id="btn-next" class="bg-blue-600/70 text-white px-4 py-2 rounded-3xl hover:bg-blue-500/70 disabled:opacity-10 disabled:hover:bg-blue-600/70" ${this._offset + this._limit >= this._count ? 'disabled' : ''}>
                         Suivant
                     </button>
-                </div>
        `
    }
 

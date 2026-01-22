@@ -19,7 +19,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
     </search>
   </header>
   <main>
-        <pagination-pokemon>
+        <pagination-pokemon class="flex justify-center gap-4 mt-8">
 <!--        Pagination-->
         </pagination-pokemon>
         <pokemon-card class ="grid grid-cols-2 md:grid-cols-3 justify-self-center">
