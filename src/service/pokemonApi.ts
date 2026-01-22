@@ -21,7 +21,7 @@ async function getPokemon(id:number){
 
 export async function getPokemonList(request:AllPokemon | undefined, index:number, end:number){
     if (!request) return []
-    const limitedRequest = request.results.slice(index,end)
+    const limitedRequest = request.results.slice(index,index+end)
     const results =  await Promise.all(
          limitedRequest.map(async p => {
             const id = p.url.split("/")[6]

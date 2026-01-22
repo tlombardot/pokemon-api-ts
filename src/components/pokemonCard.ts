@@ -3,7 +3,7 @@ import type {Pokemon} from "../types/pokemon.ts";
 export class PokemonCard extends HTMLElement
 {
 
-    private _pokemonData: Pokemon[] = []
+    public _pokemonData:Pokemon[] = []
 
     set data(pokemon: Pokemon[]) {
         this._pokemonData = pokemon;
@@ -20,9 +20,6 @@ export class PokemonCard extends HTMLElement
         }).join('')
         return this.innerHTML
 
-    }
-    connectedCallback(){
-       this.renderPokemonList(this._pokemonData)
     }
 }
 
