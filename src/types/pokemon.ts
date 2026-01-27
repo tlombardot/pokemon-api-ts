@@ -22,6 +22,10 @@ export interface Pokemon {
     sprites: Sprites
     stats : Stats[]
     types: Types[]
+    cries: Cries
+    species : {
+            url: string
+    }
 }
 
 // Ability d'un pokémon
@@ -56,4 +60,15 @@ interface Types {
     type:{
         name: string
     }
+}
+
+interface Cries {
+    latest:string
+}
+
+export interface EvoNode {
+    name: string;
+    id: string;
+    image: string;
+    evolvesTo: EvoNode[]; // Le tableau des évolutions possibles
 }

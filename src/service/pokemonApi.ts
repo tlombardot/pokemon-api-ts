@@ -76,3 +76,13 @@ export async function fetchPokemonByCategories(category:string, value:string){
     }
 
 }
+
+export async function getDataFromURL(url: string) {
+    try {
+        const response = await fetch(url);
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
