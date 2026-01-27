@@ -44,7 +44,7 @@ interface Sprites {
 
 // Stats de base d'un pokémon
 interface Stats {
-    base_stats:number
+    base_stat:number
     stat:{
         name: string
     }
