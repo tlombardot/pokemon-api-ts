@@ -9,7 +9,7 @@ import {PaginationPokemon} from "./components/paginationPokemon.ts";
 import "./components/pokemonEvolution.ts";
 import {abilitySelector, generationSelector, typesSelector, updateFilter} from "./utils/pokemonFilter.ts";
 
-//     --------------       Init Pokémon List & Data        ----------------
+// #region     --------------       Init Pokémon List & Data        ----------------
 
 const pokemon = await initAllPokemon()
 const fullList = pokemon?.results || []
@@ -17,23 +17,27 @@ let currentList = [...fullList]
 let limit = 20
 let index = 0
 
-//    ---------------        Struct Website         ----------------
+// #endregion
+
+// #region   ---------------        Struct Website         ----------------
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = /*html*/ `
   <div id="view-home">
-  <header class = "grid grid-cols-1 md:grid-cols-3 justify-center text-center p-2 bg-black/10 sticky">
-    <nav>
-        <select id="types" class ="rounded-2xl bg-gray-500/20 p-2">
+  <header class = "grid grid-cols-1 md:grid-cols-5 justify-center text-center p-2 bg-black/10 sticky">
+    <nav class ="justify-self-start rounded-xl">
+        <select id="types" class ="bg-gray-500/20 p-2 text-white">
             <option class ="bg-gray-800" value="all">Types</option>
         </select>
-        <select id="generations" class ="rounded-2xl bg-gray-500/20 p-2">
+        <select id="generations" class ="bg-gray-500/20 text-white p-2">
             <option class="bg-gray-800" value="all">Generation</option>
         </select>
-        <select id="ability" class ="rounded-2xl bg-gray-500/20 p-2">
+        <select id="ability" class ="bg-gray-500/20 text-white p-2">
             <option class ="bg-gray-800" value="all">Abilities</option>
         </select>
     </nav>
+    <div></div>
     <h1 class = "text-blue-300 text-2xl font-extrabold uppercase tracking-widest animate-pulse">Poke Next</h1>
+    <button class ="bg-gray-800 hover:scale-110 active:scale-95 text-white " onclick="window.location.hash ='/party-create'">Créer une équipe</button>
     <search class = "bg-gray-600/50 rounded-3xl justify-center md:justify-self-end">
         <input id="search" placeholder="Pokemon... (Name ou #ID)" class = "outline-none w-full pl-2.5 pr-2.5 pt-1 caret-[#ffffff] text-white ">
     </search>
@@ -50,30 +54,58 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = /*html*/ `
 
 <div id="view-details" class="hidden">
 </div>
+
+<div id="party-create" class="hidden">
+</div>
 `
-//    -----------              Get Pagination & Pokémon Card ID          ----------------
+
+// #endregion
+
+// #region  -----------              Get Pagination & Pokémon Card ID          ----------------
 
 const pagination = document.querySelector('pagination-pokemon') as PaginationPokemon
 const card = document.querySelector('pokemon-card') as PokemonCard
 const search = document.querySelector<HTMLInputElement>('#search')
 
-//    -----------             Get Select Data           ----------------
+// #endregion
+
+// #region   -----------             Get Select Data           ----------------
 
 await typesSelector(currentList,fullList, index, limit)
 await generationSelector(currentList,fullList, index, limit)
 await abilitySelector(currentList,fullList, index, limit)
 
-//    -----------            Get Pokémon List & Render It           ---------------
+//#endregion
+
+// #region   -----------            Get Pokémon List & Render It           ---------------
 
 const pokemonList = await getPokemonList(currentList,index, limit)
 card.data = pokemonList
 
-//      ----------           Get Détails & Home ID       ------------
+// #endregion
+
+// #region    ----------           Get Détails & Home ID       ------------
 
 const viewHome = document.getElementById('view-home') as HTMLDivElement;
 const viewDetails = document.getElementById('view-details') as HTMLDivElement;
+const partyCreate = document.getElementById('party-create') as HTMLDivElement;
 
-//     ------------         Function to Render Pokémon Détails
+// #endregion
+
+// #region Function to Render Create Teams Pokémon
+
+async function displayCreate() {
+    partyCreate.innerHTML = /*html*/`
+    <p>Bonjour</p>
+    `
+
+
+    
+}
+
+// #endregion
+
+// #region   ------------         Function to Render Pokémon Détails
 
 async function renderPokemonDetails(id: number) {
     const p = await getPokemon(id);
@@ -127,7 +159,7 @@ async function renderPokemonDetails(id: number) {
 <!---       ------------        Name & Sprites Pokémon         ------------        --->
             <div class="flex flex-col items-center mt-4 text-white animate-fade-in">
                 <div class="flex items-center gap-4 mb-4">
-                    <h2 class="text-4xl md:text-5xl font-extrabold uppercase text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400 drop-shadow-sm">
+                    <h2 class="text-4xl md:text-5xl font-extrabold uppercase text-transparent bg-clip-text bg-linear-to-r from-blue-300 to-purple-400 drop-shadow-sm">
                         ${p.name}
                     </h2>
                     <button id="btn-sound" class="bg-gray-700 hover:bg-blue-500 text-white p-3 rounded-full transition-all active:scale-95 shadow-lg" title="Play Cry">
@@ -138,7 +170,7 @@ async function renderPokemonDetails(id: number) {
                 </div>
                 
                 <div class="relative group">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-blue-500/30 to-purple-500/30 blur-3xl rounded-full group-hover:bg-blue-500/40 transition-all duration-500"></div>
+                    <div class="absolute inset-0 bg-linear-to-tr from-blue-500/30 to-purple-500/30 blur-3xl rounded-full group-hover:bg-blue-500/40 transition-all duration-500"></div>
                     <img class="relative w-72 h-72 md:w-96 md:h-96 z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-500" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.id}.png" alt="${p.name}">
                 </div>
                 
@@ -174,7 +206,7 @@ async function renderPokemonDetails(id: number) {
                          </div>
                     </div>
 <!---       ------------        Evolution Chain Pokémon         ------------        --->
-                    <div class="">
+                    <div class="bg-gray-700 rounded-3xl p-6">
                         <h3 class="text-xl font-bold text-amber-200 mb-4 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                             Evolution Chain
@@ -207,7 +239,9 @@ async function renderPokemonDetails(id: number) {
     }
 }
 
-//    ------------        Function to Detect Route Path         ----------------
+// #endregion
+
+// #region   ------------        Function to Detect Route Path         ----------------
 
 async function router() {
     const hash = globalThis.location.hash;
@@ -215,29 +249,45 @@ async function router() {
         history.replaceState(null, '', '#');
     }
 
-    if (hash.startsWith('#/pokemon/')) {
+    // ROUTE 1 : CRÉATION D'ÉQUIPE
+    if (hash.startsWith('#/party-create')){
+        // 1. Gestion de l'affichage
+        partyCreate.classList.remove('hidden')
+        viewDetails.classList.add('hidden')
+        viewHome.classList.add('hidden')
+        await displayCreate()
+    }
+    
+    // ROUTE 2 : DÉTAIL POKÉMON
+    else if (hash.startsWith('#/pokemon/')) {
         const idString = hash.split('/')[2];
         const id = Number(idString);
 
         if (!Number.isNaN(id)) {
             viewHome.classList.add('hidden');
+            partyCreate.classList.add('hidden'); 
             viewDetails.classList.remove('hidden');
-
             await renderPokemonDetails(id);
         }
     }
+    
+    // ROUTE 3 : ACCUEIL (Défaut)
     else {
         viewHome.classList.remove('hidden');
         viewDetails.classList.add('hidden');
-        window.scrollTo(0, 0);
+        partyCreate.classList.add('hidden');
+        
 
+        window.scrollTo(0, 0);
         if (card.innerHTML.trim() === "") {
             card.data = await getPokemonList(currentList, index, limit);
         }
     }
 }
 
-//      ----------------        Event Pagination & Route Path           ----------------
+// #endregion
+
+//  #region    ----------------        Event Pagination & Route Path           ----------------
 
 globalThis.addEventListener('hashchange', router);
 await router();
@@ -247,7 +297,9 @@ pagination.addEventListener('page-changed', async(e:any) => {
     card.data = await getPokemonList(currentList,offset, limit)
 })
 
-//      ---------------        Update Filter by Search Input         ---------------
+// #endregion
+
+// #region     ---------------        Update Filter by Search Input         ---------------
 
 if(search){
     search.addEventListener('input', () => {
@@ -255,6 +307,6 @@ if(search){
          })
 }
 
-
+// #endregion
 
 

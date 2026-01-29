@@ -55,38 +55,40 @@ export class PokemonEvolution extends HTMLElement{
     }
 
     private renderNode(node: EvoNode): string {
+        // Parent
         const pokemonHtml = /*html*/ `
-            <div class="flex flex-col items-center group cursor-pointer mx-2" onclick="window.location.hash = '/pokemon/${node.id}'">
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-700/50 border border-gray-600 flex items-center justify-center overflow-hidden mb-2 relative transition-transform hover:scale-110">
+            <div class="flex flex-col items-center group cursor-pointer relative z-10" onclick="window.location.hash = '/pokemon/${node.id}'">
+                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-700/50 border border-gray-600 flex items-center justify-center overflow-hidden mb-2 relative transition-transform hover:scale-110 shadow-lg">
                      <img src="${node.image}" alt="${node.name}" class="w-full h-full object-contain p-1 z-10">
                      <div class="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/20 transition-colors"></div>
                 </div>
                 <span class="text-xs font-bold text-gray-300 uppercase tracking-wider group-hover:text-blue-300 transition-colors">${node.name}</span>
             </div>
-            
         `;
-
         if (node.evolvesTo.length === 0) {
             return pokemonHtml;
         }
 
-        const childrenHtml = node.evolvesTo.map(child => {
-            return /*html*/ `
-                <div class="flex items-center">
-                    <div class="text-gray-600 mx-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
-                        </svg>
-                    </div>
-                    ${this.renderNode(child)}
-                </div>
-            `;
-        }).join('');
+        // Fléche 
+        const arrowHtml = /*html*/ `
+            <div class="text-gray-500 mx-2 md:mx-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </div>
+        `;
+
+        // Enfant
+        const childrenHtml = node.evolvesTo.map(child => this.renderNode(child)).join('');
 
         return /*html*/`
             <div class="flex items-center">
                 ${pokemonHtml}
-                <div class="flex flex-col gap-4 justify-center"> ${childrenHtml}
+                
+                ${arrowHtml}
+                
+                <div class="grid grid-cols-4 items-center justify-center gap-4">
+                    ${childrenHtml}
                 </div>
             </div>
         `;

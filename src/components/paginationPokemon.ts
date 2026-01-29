@@ -40,7 +40,6 @@ export class PaginationPokemon extends HTMLElement{
         next?.addEventListener("click", ()=>{
                 this._offset += this._limit
                 this._pages = Number(this._offset/this._limit + 1)
-                console.log(this._pages)
                 this.notifyChange()
                 this.render()
                 this.addListeners()
