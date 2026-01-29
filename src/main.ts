@@ -1,27 +1,32 @@
-import './assets/styles.css'
+import "./assets/styles.css";
 import {
-    getPokemon,
-    getPokemonList,
-    initAllPokemon
-} from './service/pokemonApi.ts'
-import {PokemonCard} from './components/pokemonCard.ts'
-import {PaginationPokemon} from "./components/paginationPokemon.ts";
+  getPokemon,
+  getPokemonList,
+  initAllPokemon,
+} from "./service/pokemonApi.ts";
+import { PokemonCard } from "./components/pokemonCard.ts";
+import { PaginationPokemon } from "./components/paginationPokemon.ts";
 import "./components/pokemonEvolution.ts";
-import {abilitySelector, generationSelector, typesSelector, updateFilter} from "./utils/pokemonFilter.ts";
+import {
+  abilitySelector,
+  generationSelector,
+  typesSelector,
+  updateFilter,
+} from "./utils/pokemonFilter.ts";
 
 // #region     --------------       Init Pokémon List & Data        ----------------
 
-const pokemon = await initAllPokemon()
-const fullList = pokemon?.results || []
-let currentList = [...fullList]
-let limit = 20
-let index = 0
+const pokemon = await initAllPokemon();
+const fullList = pokemon?.results || [];
+let currentList = [...fullList];
+let limit = 20;
+let index = 0;
 
 // #endregion
 
 // #region   ---------------        Struct Website         ----------------
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = /*html*/ `
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
   <div id="view-home">
   <header class = "grid grid-cols-1 md:grid-cols-5 justify-center text-center p-2 bg-black/10 sticky">
     <nav class ="justify-self-start rounded-xl">
@@ -57,50 +62,49 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = /*html*/ `
 
 <div id="party-create" class="hidden">
 </div>
-`
+`;
 
 // #endregion
 
 // #region  -----------              Get Pagination & Pokémon Card ID          ----------------
 
-const pagination = document.querySelector('pagination-pokemon') as PaginationPokemon
-const card = document.querySelector('pokemon-card') as PokemonCard
-const search = document.querySelector<HTMLInputElement>('#search')
+const pagination = document.querySelector(
+  "pagination-pokemon",
+) as PaginationPokemon;
+const card = document.querySelector("pokemon-card") as PokemonCard;
+const search = document.querySelector<HTMLInputElement>("#search");
 
 // #endregion
 
 // #region   -----------             Get Select Data           ----------------
 
-await typesSelector(currentList,fullList, index, limit)
-await generationSelector(currentList,fullList, index, limit)
-await abilitySelector(currentList,fullList, index, limit)
+await typesSelector(currentList, fullList, index, limit);
+await generationSelector(currentList, fullList, index, limit);
+await abilitySelector(currentList, fullList, index, limit);
 
 //#endregion
 
 // #region   -----------            Get Pokémon List & Render It           ---------------
 
-const pokemonList = await getPokemonList(currentList,index, limit)
-card.data = pokemonList
+const pokemonList = await getPokemonList(currentList, index, limit);
+card.data = pokemonList;
 
 // #endregion
 
 // #region    ----------           Get Détails & Home ID       ------------
 
-const viewHome = document.getElementById('view-home') as HTMLDivElement;
-const viewDetails = document.getElementById('view-details') as HTMLDivElement;
-const partyCreate = document.getElementById('party-create') as HTMLDivElement;
+const viewHome = document.getElementById("view-home") as HTMLDivElement;
+const viewDetails = document.getElementById("view-details") as HTMLDivElement;
+const partyCreate = document.getElementById("party-create") as HTMLDivElement;
 
 // #endregion
 
 // #region Function to Render Create Teams Pokémon
 
 async function displayCreate() {
-    partyCreate.innerHTML = /*html*/`
+  partyCreate.innerHTML = /*html*/ `
     <p>Bonjour</p>
-    `
-
-
-    
+    `;
 }
 
 // #endregion
@@ -108,36 +112,45 @@ async function displayCreate() {
 // #region   ------------         Function to Render Pokémon Détails
 
 async function renderPokemonDetails(id: number) {
-    const p = await getPokemon(id);
-    if(!p) return;
+  const p = await getPokemon(id);
+  if (!p) return;
 
-    const currentIndex = currentList.findIndex(pokemonItem => {
-        const urlId = Number(pokemonItem.url.split('/').at(-2));
-        return urlId === id;
-    });
+  const currentIndex = currentList.findIndex((pokemonItem) => {
+    const urlId = Number(pokemonItem.url.split("/").at(-2));
+    return urlId === id;
+  });
 
-    let prevId = null;
-    let nextId = null;
-    if (currentIndex !== -1) {
-        if (currentIndex > 0) {
-            const prevPokemon = currentList[currentIndex - 1];
-            prevId = Number(prevPokemon.url.split('/').at(-2));
-        }
-        if (currentIndex < currentList.length - 1) {
-            const nextPokemon = currentList[currentIndex + 1];
-            nextId = Number(nextPokemon.url.split('/').at(-2));
-        }
+  let prevId = null;
+  let nextId = null;
+  if (currentIndex !== -1) {
+    if (currentIndex > 0) {
+      const prevPokemon = currentList[currentIndex - 1];
+      prevId = Number(prevPokemon.url.split("/").at(-2));
     }
-    const cryUrl = p.cries.latest;
-    const typesHtml = p.types.map(t => /*html*/ `<span class="bg-gray-700 px-3 py-1 rounded-full text-sm">${t.type.name}</span>`).join('');
-    const statsHtml = p.stats.map(s => /*html*/ `
+    if (currentIndex < currentList.length - 1) {
+      const nextPokemon = currentList[currentIndex + 1];
+      nextId = Number(nextPokemon.url.split("/").at(-2));
+    }
+  }
+  const cryUrl = p.cries.latest;
+  const typesHtml = p.types
+    .map(
+      (t) =>
+        /*html*/ `<span class="bg-gray-700 px-3 py-1 rounded-full text-sm">${t.type.name}</span>`,
+    )
+    .join("");
+  const statsHtml = p.stats
+    .map(
+      (s) => /*html*/ `
         <div class="flex justify-between">
             <span class="uppercase text-gray-400">${s.stat.name}:</span>
             <span class="text-white font-bold">${s.base_stat}</span>
         </div>
-    `).join('');
+    `,
+    )
+    .join("");
 
-    const html = /*html*/ `
+  const html = /*html*/ `
         <div class="max-w-5xl mx-auto p-4">
             <nav id="btn-nav" class="flex justify-between items-center mb-6">
                 <a href="#" class="flex items-center gap-2 text-white text-lg font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
@@ -145,15 +158,23 @@ async function renderPokemonDetails(id: number) {
                 </a>
 <!---       ------------        Button Nav Next & Previous         ------------        --->
                 <div class="flex gap-4">
-                    ${prevId ? `
+                    ${
+                      prevId
+                        ? `
                     <a href="#/pokemon/${prevId}" class="flex items-center gap-2 text-white font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
                         <span>❮</span> <span class="hidden sm:inline">Précédent</span>
-                    </a>` : '<div></div>'}
+                    </a>`
+                        : "<div></div>"
+                    }
                     
-                    ${nextId ? `
+                    ${
+                      nextId
+                        ? `
                     <a href="#/pokemon/${nextId}" class="flex items-center gap-2 text-white font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
                         <span class="hidden sm:inline">Suivant</span> <span>❯</span>
-                    </a>` : ''}
+                    </a>`
+                        : ""
+                    }
                 </div>
             </nav>
 <!---       ------------        Name & Sprites Pokémon         ------------        --->
@@ -219,24 +240,24 @@ async function renderPokemonDetails(id: number) {
             </div>
         `;
 
-    const existingContent = viewDetails.querySelector('.pokemon-content');
-    if(existingContent) existingContent.remove();
+  const existingContent = viewDetails.querySelector(".pokemon-content");
+  if (existingContent) existingContent.remove();
 
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'pokemon-content';
-    contentDiv.innerHTML = html;
-    viewDetails.appendChild(contentDiv);
+  const contentDiv = document.createElement("div");
+  contentDiv.className = "pokemon-content";
+  contentDiv.innerHTML = html;
+  viewDetails.appendChild(contentDiv);
 
-//      ------------          Event Sound Cries Pokémon        ----------------
+  //      ------------          Event Sound Cries Pokémon        ----------------
 
-    const btnSound = contentDiv.querySelector('#btn-sound');
-    if(btnSound && cryUrl) {
-        btnSound.addEventListener('click', () => {
-            const audio = new Audio(cryUrl);
-            audio.volume = 0.5; // Volume à 50%
-            audio.play().catch(e => console.error("Erreur lecture audio:", e));
-        });
-    }
+  const btnSound = contentDiv.querySelector("#btn-sound");
+  if (btnSound && cryUrl) {
+    btnSound.addEventListener("click", () => {
+      const audio = new Audio(cryUrl);
+      audio.volume = 0.5; // Volume à 50%
+      audio.play().catch((e) => console.error("Erreur lecture audio:", e));
+    });
+  }
 }
 
 // #endregion
@@ -244,69 +265,66 @@ async function renderPokemonDetails(id: number) {
 // #region   ------------        Function to Detect Route Path         ----------------
 
 async function router() {
-    const hash = globalThis.location.hash;
-    if (!hash) {
-        history.replaceState(null, '', '#');
-    }
+  const hash = globalThis.location.hash;
+  if (!hash) {
+    history.replaceState(null, "", "#");
+  }
 
-    // ROUTE 1 : CRÉATION D'ÉQUIPE
-    if (hash.startsWith('#/party-create')){
-        // 1. Gestion de l'affichage
-        partyCreate.classList.remove('hidden')
-        viewDetails.classList.add('hidden')
-        viewHome.classList.add('hidden')
-        await displayCreate()
-    }
-    
-    // ROUTE 2 : DÉTAIL POKÉMON
-    else if (hash.startsWith('#/pokemon/')) {
-        const idString = hash.split('/')[2];
-        const id = Number(idString);
+  // ROUTE 1 : CRÉATION D'ÉQUIPE
+  if (hash.startsWith("#/party-create")) {
+    // 1. Gestion de l'affichage
+    partyCreate.classList.remove("hidden");
+    viewDetails.classList.add("hidden");
+    viewHome.classList.add("hidden");
+    await displayCreate();
+  }
 
-        if (!Number.isNaN(id)) {
-            viewHome.classList.add('hidden');
-            partyCreate.classList.add('hidden'); 
-            viewDetails.classList.remove('hidden');
-            await renderPokemonDetails(id);
-        }
-    }
-    
-    // ROUTE 3 : ACCUEIL (Défaut)
-    else {
-        viewHome.classList.remove('hidden');
-        viewDetails.classList.add('hidden');
-        partyCreate.classList.add('hidden');
-        
+  // ROUTE 2 : DÉTAIL POKÉMON
+  else if (hash.startsWith("#/pokemon/")) {
+    const idString = hash.split("/")[2];
+    const id = Number(idString);
 
-        window.scrollTo(0, 0);
-        if (card.innerHTML.trim() === "") {
-            card.data = await getPokemonList(currentList, index, limit);
-        }
+    if (!Number.isNaN(id)) {
+      viewHome.classList.add("hidden");
+      partyCreate.classList.add("hidden");
+      viewDetails.classList.remove("hidden");
+      await renderPokemonDetails(id);
     }
+  }
+
+  // ROUTE 3 : ACCUEIL (Défaut)
+  else {
+    viewHome.classList.remove("hidden");
+    viewDetails.classList.add("hidden");
+    partyCreate.classList.add("hidden");
+
+    window.scrollTo(0, 0);
+    if (card.innerHTML.trim() === "") {
+      card.data = await getPokemonList(currentList, index, limit);
+    }
+  }
 }
 
 // #endregion
 
 //  #region    ----------------        Event Pagination & Route Path           ----------------
 
-globalThis.addEventListener('hashchange', router);
+globalThis.addEventListener("hashchange", router);
 await router();
 
-pagination.addEventListener('page-changed', async(e:any) => {
-    const {offset, limit} = e.detail
-    card.data = await getPokemonList(currentList,offset, limit)
-})
+pagination.addEventListener("page-changed", async (e: any) => {
+  const { offset, limit } = e.detail;
+  card.data = await getPokemonList(currentList, offset, limit);
+});
 
 // #endregion
 
 // #region     ---------------        Update Filter by Search Input         ---------------
 
-if(search){
-    search.addEventListener('input', () => {
-                return updateFilter(currentList,fullList, index, limit)
-         })
+if (search) {
+  search.addEventListener("input", () => {
+    return updateFilter(currentList, fullList, index, limit);
+  });
 }
 
 // #endregion
-
-
