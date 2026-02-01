@@ -57,7 +57,7 @@ export class PokemonDetails extends HTMLElement {
   private renderInfoRow(title: string, data: any[]) {
     return `
         <tr class="bg-[#cedff2] dark:bg-slate-800">
-            <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t border-[#aaa] text-center text-xs uppercase dark:text-gray-200">
+            <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t text-center text-xs uppercase dark:text-gray-200">
                 ${title}
             </th>
         </tr>
@@ -131,7 +131,7 @@ export class PokemonDetails extends HTMLElement {
 
     const movesLevelUp = p.moves
       .filter((m) => m.version_group_details.some((d) => d.move_learn_method.name === "level-up"))
-      .map((m) => ({ name: m.move.name, level: m.version_group_details.at(-1)?.level_learned_at }))
+      .map((m) => ({ name: m.move.name, level: m.version_group_details.at(-1)?.level_learned_at ?? 0 }))
       .sort((a, b) => a.level - b.level);
 
     const movesTM = p.moves
@@ -298,7 +298,7 @@ export class PokemonDetails extends HTMLElement {
                     <h3 class="font-bold text-sm mb-2 mt-4 dark:text-gray-300">Par CT / CS</h3>
                     <div class="border border-[#aaa] dark:border-slate-700 p-2 bg-[#f9f9f9] dark:bg-slate-800">
                         <div class="flex flex-wrap gap-2 text-xs">
-                            ${movesTM.map((m, i) => `
+                            ${movesTM.map((m) => `
                                 <span class="px-2 py-1 bg-white dark:bg-slate-900 border border-[#ccc] dark:border-slate-600 rounded text-[#0645ad] dark:text-blue-400 hover:underline cursor-pointer">
                                     ${m.replace('-', ' ')}
                                 </span>
@@ -328,7 +328,7 @@ export class PokemonDetails extends HTMLElement {
                             </tr>
 
                             <tr class="bg-[#cedff2] dark:bg-slate-800">
-                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t border-[#aaa] text-center text-xs uppercase dark:text-gray-200">Chromatique (Shiny)</th>
+                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t text-center text-xs uppercase dark:text-gray-200">Chromatique (Shiny)</th>
                             </tr>
                             <tr>
                                 <td colspan="2" class="text-center p-4 bg-white dark:bg-slate-900 border-b border-[#aaa] dark:border-slate-700">
@@ -344,7 +344,7 @@ export class PokemonDetails extends HTMLElement {
                             ])}
 
                             <tr class="bg-[#cedff2] dark:bg-slate-800">
-                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t border-[#aaa] text-center text-xs uppercase dark:text-gray-200">Types</th>
+                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t text-center text-xs uppercase dark:text-gray-200">Types</th>
                             </tr>
                             <tr>
                                 <td colspan="2" class="p-2 border border-[#aaa] dark:border-slate-700 text-center bg-white dark:bg-slate-900">
@@ -374,7 +374,7 @@ export class PokemonDetails extends HTMLElement {
                             ])}
 
                             <tr class="bg-[#cedff2] dark:bg-slate-800">
-                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t border-[#aaa] text-center text-xs uppercase dark:text-gray-200">Talents</th>
+                                <th colspan="2" class="p-1 border-b border-[#aaa] dark:border-slate-700 border-t text-center text-xs uppercase dark:text-gray-200">Talents</th>
                             </tr>
                             ${abilityDataList.map((ad: any, i: number) => `
                                 <tr>
