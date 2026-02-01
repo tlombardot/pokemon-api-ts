@@ -44,9 +44,11 @@ export async function updateFilter(
   if (typeValue != "all") {
     const pokemonInType = await fetchPokemonByCategories("type", typeValue);
     const typeSet = new Set(pokemonInType);
-    currentList = currentList.filter((p: PokemonURL) =>
-      typeSet.has(p.name.toLowerCase()),
-    );
+    console.log(typeSet)
+    currentList = currentList.filter((p: PokemonURL) => {
+      const id = p.url.split("/").at(-2);
+      return typeSet.has(id)
+    });
   }
   if (generationValue != "all") {
     const pokemonInGeneration = await fetchPokemonByCategories(
@@ -54,9 +56,10 @@ export async function updateFilter(
       generationValue,
     );
     const generationSet = new Set(pokemonInGeneration);
-    currentList = currentList.filter((p: PokemonURL) =>
-      generationSet.has(p.name.toLowerCase()),
-    );
+    currentList = currentList.filter((p: PokemonURL) =>{
+      const id = p.url.split("/").at(-2);
+      return generationSet.has(id);
+  });
   }
   if (abilitiesValue != "all") {
     const pokemonInAbility = await fetchPokemonByCategories(
@@ -64,14 +67,16 @@ export async function updateFilter(
       abilitiesValue,
     );
     const abilitiesSet = new Set(pokemonInAbility);
-    currentList = currentList.filter((p: PokemonURL) =>
-      abilitiesSet.has(p.name.toLowerCase()),
-    );
+    currentList = currentList.filter((p: PokemonURL) => {
+      const id = p.url.split("/").at(-2);
+      return abilitiesSet.has(id)
+  });
   }
   indexValue = 0;
   pagination.dataCount = {
     count: currentList.length,
     offset: 0,
+    list: currentList
   };
   card.data = await getPokemonList(currentList, indexValue, limit);
 }

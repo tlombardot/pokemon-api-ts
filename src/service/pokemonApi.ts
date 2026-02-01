@@ -76,10 +76,11 @@ export async function fetchPokemonByCategories(
     const data = await response.json();
 
     if (category === "generation")
-      return data.pokemon_species.map((p: any) => p.name);
-    else return data.pokemon.map((p: any) => p.pokemon.name);
+      return data.pokemon_species.map((p: any) => p.url.split("/").at(-2));
+    else return data.pokemon.map((p: any) => p.pokemon.url.split("/").at(-2));
   } catch (error) {
     console.log(error);
+    return[]
   }
 }
 

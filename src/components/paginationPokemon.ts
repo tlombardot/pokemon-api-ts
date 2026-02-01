@@ -1,18 +1,22 @@
+import type { PokemonURL } from "../types/pokemon";
+
 export class PaginationPokemon extends HTMLElement {
   public _offset: number = 0;
   private readonly _limit: number = 20;
   private _count: number = 1350;
   private _pages: number = 1;
+  private _currentList: PokemonURL[] = []
 
   connectedCallback() {
     this.render();
     this.addListeners();
   }
 
-  set dataCount(value: { count: number; offset: number }) {
+  set dataCount(value: { count: number; offset: number, list: PokemonURL[] }) {
     this._count = value.count;
     this._offset = value.offset;
     this._pages = Math.floor(this._offset / this._limit) + 1;
+    this._currentList = value.list
     this.render();
     this.addListeners();
   }
@@ -60,7 +64,7 @@ export class PaginationPokemon extends HTMLElement {
 
   private notifyChange() {
     const event = new CustomEvent("page-changed", {
-      detail: { offset: this._offset, limit: this._limit },
+      detail: { offset: this._offset, limit: this._limit, currentList: this._currentList },
     });
     this.dispatchEvent(event);
   }

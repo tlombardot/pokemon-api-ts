@@ -28,8 +28,8 @@ let index = 0;
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
   <div id="view-home">
-  <header class = "grid grid-cols-1 md:grid-cols-5 justify-center text-center p-2 bg-black/10 sticky">
-    <nav class ="justify-self-start rounded-xl">
+  <header class = "grid grid-cols-1 md:grid-cols-5 justify-center text-center p-2 bg-gray-600/40 sticky">
+    <nav class ="justify-self-start rounded-xl grid grid-cols-3 gap-2">
         <select id="types" class ="bg-gray-500/20 p-2 text-white">
             <option class ="bg-gray-800" value="all">Types</option>
         </select>
@@ -42,16 +42,16 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
     </nav>
     <div></div>
     <h1 class = "text-blue-300 text-2xl font-extrabold uppercase tracking-widest animate-pulse">Poke Next</h1>
-    <button class ="bg-gray-800 hover:scale-110 active:scale-95 text-white " onclick="window.location.hash ='/party-create'">Créer une équipe</button>
-    <search class = "bg-gray-600/50 rounded-3xl justify-center md:justify-self-end">
-        <input id="search" placeholder="Pokemon... (Name ou #ID)" class = "outline-none w-full pl-2.5 pr-2.5 pt-1 caret-[#ffffff] text-white ">
+    <button class ="bg-gray-600/50 w-50 justify-self-end rounded-3xl hover:scale-110 active:scale-95 text-white h-10" onclick="window.location.hash ='/party-create'">Créer une équipe</button>
+    <search class = "bg-gray-600/50 rounded-3xl justify-center md:justify-self-end h-10 pt-1">
+        <input id="search" placeholder="Pokemon... (Name ou #ID)" class = "outline-none pl-2.5 pr-2.5 pt-1 caret-[#ffffff] text-white ">
     </search>
   </header>
   <main>
         <pagination-pokemon class="flex justify-center gap-4 mt-8">
 <!--        Pagination-->
         </pagination-pokemon>
-        <pokemon-card class ="grid grid-cols-2 md:grid-cols-3 justify-self-center">
+        <pokemon-card class ="grid grid-cols-2 md:grid-cols-5 justify-self-center">
 <!--        Pokémon list--> 
         </pokemon-card>
   </main>
@@ -99,17 +99,22 @@ const partyCreate = document.getElementById("party-create") as HTMLDivElement;
 
 // #endregion
 
-// #region Function to Render Create Teams Pokémon
+// #region    ----------        Function to Render Create Teams Pokémon       ------------
 
 async function displayCreate() {
   partyCreate.innerHTML = /*html*/ `
-    <p>Bonjour</p>
+    <div class ="justify-self-center">
+      <a href="#" class="flex gap-2 text-white text-lg font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
+                      <h1>
+      </a>
+      <p>Bonjour</p>
+    </div>
     `;
 }
 
 // #endregion
 
-// #region   ------------         Function to Render Pokémon Détails
+// #region   ------------         Function to Render Pokémon Détails      --------------
 
 async function renderPokemonDetails(id: number) {
   const p = await getPokemon(id);
@@ -151,10 +156,10 @@ async function renderPokemonDetails(id: number) {
     .join("");
 
   const html = /*html*/ `
-        <div class="max-w-5xl mx-auto p-4">
+        <div class="mx-auto p-4">
             <nav id="btn-nav" class="flex justify-between items-center mb-6">
                 <a href="#" class="flex items-center gap-2 text-white text-lg font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
-                    <span>←</span> Liste
+                    ← Liste
                 </a>
 <!---       ------------        Button Nav Next & Previous         ------------        --->
                 <div class="flex gap-4">
@@ -227,7 +232,7 @@ async function renderPokemonDetails(id: number) {
                          </div>
                     </div>
 <!---       ------------        Evolution Chain Pokémon         ------------        --->
-                    <div class="bg-gray-700 rounded-3xl p-6">
+                    <div class="bg-gray-800/80 rounded-3xl p-6">
                         <h3 class="text-xl font-bold text-amber-200 mb-4 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                             Evolution Chain
@@ -272,7 +277,6 @@ async function router() {
 
   // ROUTE 1 : CRÉATION D'ÉQUIPE
   if (hash.startsWith("#/party-create")) {
-    // 1. Gestion de l'affichage
     partyCreate.classList.remove("hidden");
     viewDetails.classList.add("hidden");
     viewHome.classList.add("hidden");
@@ -313,7 +317,7 @@ globalThis.addEventListener("hashchange", router);
 await router();
 
 pagination.addEventListener("page-changed", async (e: any) => {
-  const { offset, limit } = e.detail;
+  const { offset, limit, currentList } = e.detail;
   card.data = await getPokemonList(currentList, offset, limit);
 });
 
