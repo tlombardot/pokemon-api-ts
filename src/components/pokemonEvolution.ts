@@ -13,26 +13,31 @@ export class PokemonEvolution extends HTMLElement {
   }
 
   private async loadEvolutions(speciesUrl: string) {
-    this.innerHTML = `<p class="text-gray-500 text-sm animate-pulse">Chargement des évolutions...</p>`;
+    this.innerHTML = `<div class="text-gray-500 dark:text-gray-400 text-center text-sm font-serif italic py-4">Chargement de la famille...</div>`;
     try {
       const speciesData = await getDataFromURL(speciesUrl);
       if (!speciesData?.evolution_chain) {
-        this.innerHTML = `<p class="text-gray-500">Pas d'évolution</p>`;
+        this.innerHTML = `<div class="text-gray-500 dark:text-gray-400 text-center">Pas d'évolution</div>`;
         return;
       }
 
       const evoData = await getDataFromURL(speciesData.evolution_chain.url);
       const evoTree = this.buildEvoTree(evoData.chain);
-      console.log(evoTree);
+      
       this.innerHTML = "";
       const container = document.createElement("div");
-      container.className =
-        "flex items-center justify-center overflow-x-auto py-4";
-      container.innerHTML = this.renderNode(evoTree);
+      container.className = "flex justify-center w-full overflow-x-auto";
+      
+      if (evoTree.evolvesTo.length > 2) {
+          container.innerHTML = this.renderEeveeStyle(evoTree);
+      } else {
+          container.innerHTML = this.renderLinearStyle(evoTree);
+      }
+      
       this.appendChild(container);
     } catch (err) {
       console.error(err);
-      this.innerHTML = `<p class="text-red-400">Erreur de chargement</p>`;
+      this.innerHTML = `<div class="text-red-600 dark:text-red-400 text-center">Erreur.</div>`;
     }
   }
 
@@ -45,6 +50,7 @@ export class PokemonEvolution extends HTMLElement {
       id: id,
       image: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`,
       evolvesTo: [],
+      evolutionDetails: chainNode.evolution_details || [],
     };
 
     if (chainNode.evolves_to && chainNode.evolves_to.length > 0) {
@@ -52,50 +58,148 @@ export class PokemonEvolution extends HTMLElement {
         this.buildEvoTree(childNode),
       );
     }
-
     return node;
   }
 
-  private renderNode(node: EvoNode): string {
-    // Parent
-    const pokemonHtml = /*html*/ `
-            <div class="flex flex-col items-center group cursor-pointer relative z-10" onclick="window.location.hash = '/pokemon/${node.id}'">
-                <div class="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gray-700/50 border border-gray-600 flex items-center justify-center overflow-hidden mb-2 relative transition-transform hover:scale-110 shadow-lg">
-                     <img src="${node.image}" alt="${node.name}" class="w-full h-full object-contain p-1 z-10">
-                     <div class="absolute inset-0 bg-blue-500/0 group-hover:bg-blue-500/20 transition-colors"></div>
+  private getConditionText(details: any[]): string {
+    if (!details || details.length === 0) return "Évolution";
+    const d = details[0]; 
+
+    let text = "";
+    if (d.min_level) text = `Niveau ${d.min_level}`;
+    else if (d.item) text = `Avec ${d.item.name.replace(/-/g, ' ')}`;
+    else if (d.trigger?.name === "trade") text = "Échange";
+    else if (d.min_happiness) text = "Bonheur";
+    else if (d.known_move_type) text = `Avec cap. ${d.known_move_type.name}`;
+    else if (d.location) text = `À ${d.location.name.replace(/-/g, ' ')}`;
+    else text = "Spécial";
+
+    if (d.time_of_day) text += `, de ${d.time_of_day}`;
+    
+    return text;
+  }
+
+  // --- STYLE 1 : TABLEAU COMPLEXE (Dark Mode Ready) ---
+  private renderEeveeStyle(node: EvoNode): string {
+    const children = node.evolvesTo;
+    
+    const rowsHtml = children.map((child, index) => {
+        const condition = this.getConditionText(child.evolutionDetails);
+        const childCell = /*html*/`
+            <td class="border border-[#aaa] dark:border-slate-700 p-2 bg-white dark:bg-slate-900 text-center text-sm dark:text-gray-300">
+                ${condition} ►
+            </td>
+            <td class="border border-[#aaa] dark:border-slate-700 p-2 bg-white dark:bg-slate-900 text-center w-[120px]">
+                <div class="flex flex-col items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 p-2 rounded transition-colors" onclick="window.location.hash = '/pokemon/${child.id}'">
+                    <img src="${child.image}" class="w-16 h-16 object-contain rendering-pixelated" alt="${child.name}">
+                    <span class="text-[#0645ad] dark:text-blue-400 font-bold text-sm hover:underline capitalize">${child.name}</span>
                 </div>
-                <span class="text-xs font-bold text-gray-300 uppercase tracking-wider group-hover:text-blue-300 transition-colors">${node.name}</span>
-            </div>
-        `;
-    if (node.evolvesTo.length === 0) {
-      return pokemonHtml;
-    }
-
-    // Fléche
-    const arrowHtml = /*html*/ `
-            <div class="text-gray-500 mx-2 md:mx-4">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-            </div>
+            </td>
         `;
 
-    // Enfant
-    const childrenHtml = node.evolvesTo
-      .map((child) => this.renderNode(child))
-      .join("");
+        if (index === 0) {
+            return /*html*/`
+                <tr>
+                    <td rowspan="${children.length}" class="border border-[#aaa] dark:border-slate-700 p-4 bg-white dark:bg-slate-900 text-center w-[120px]">
+                        <div class="flex flex-col items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 p-2 rounded transition-colors" onclick="window.location.hash = '/pokemon/${node.id}'">
+                            <img src="${node.image}" class="w-20 h-20 object-contain rendering-pixelated" alt="${node.name}">
+                            <span class="text-black dark:text-white font-bold text-sm capitalize">${node.name}</span>
+                        </div>
+                    </td>
+                    ${childCell}
+                </tr>
+            `;
+        } else {
+            return `<tr>${childCell}</tr>`;
+        }
+    }).join("");
 
-    return /*html*/ `
-            <div class="flex items-center">
-                ${pokemonHtml}
-                
-                ${arrowHtml}
-                
-                <div class="grid grid-cols-4 items-center justify-center gap-4">
-                    ${childrenHtml}
-                </div>
-            </div>
+    return /*html*/`
+        <table class="border-collapse border border-[#aaa] dark:border-slate-700 bg-[#f9f9f9] dark:bg-slate-800 text-sm shadow-sm transition-colors" style="min-width: 300px;">
+            <thead>
+                <tr class="bg-[#cedff2] dark:bg-slate-800">
+                    <th colspan="3" class="border border-[#aaa] dark:border-slate-700 p-2 text-center font-serif dark:text-gray-200">Famille d'évolution de ${node.name}</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rowsHtml}
+            </tbody>
+        </table>
+    `;
+  }
+
+  // --- STYLE 2 : TABLEAU VERTICAL (Dark Mode Ready) ---
+  private renderLinearStyle(node: EvoNode): string {
+    
+    const buildLinearRows = (current: EvoNode): string => {
+        let html = "";
+
+        // 1. Pokémon
+        html += /*html*/`
+            <tr>
+                <td colspan="2" class="p-4 border-l border-r border-[#aaa] dark:border-slate-700 bg-white dark:bg-slate-900 text-center">
+                    <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform" onclick="window.location.hash = '/pokemon/${current.id}'">
+                        <img src="${current.image}" class="w-20 h-20 object-contain rendering-pixelated" alt="${current.name}">
+                        <span class="text-[#0645ad] dark:text-blue-400 font-bold hover:underline capitalize mt-1">${current.name}</span>
+                    </div>
+                </td>
+            </tr>
         `;
+
+        // 2. Évolutions
+        if (current.evolvesTo.length > 0) {
+            if (current.evolvesTo.length > 1) {
+                const width = 100 / current.evolvesTo.length;
+                html += "<tr>";
+                // Conditions
+                current.evolvesTo.forEach(child => {
+                    html += /*html*/`
+                        <td class="p-2 border border-[#aaa] dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-xs dark:text-gray-300" style="width:${width}%">
+                            <div class="my-1">${this.getConditionText(child.evolutionDetails)} ▼</div>
+                        </td>
+                    `;
+                });
+                html += "</tr><tr>";
+                // Pokémon Enfants
+                current.evolvesTo.forEach(child => {
+                    html += /*html*/`
+                        <td class="p-4 border border-[#aaa] dark:border-slate-700 bg-white dark:bg-slate-900 text-center align-top">
+                            <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform" onclick="window.location.hash = '/pokemon/${child.id}'">
+                                <img src="${child.image}" class="w-16 h-16 object-contain rendering-pixelated" alt="${child.name}">
+                                <span class="text-[#0645ad] dark:text-blue-400 font-bold hover:underline capitalize mt-1">${child.name}</span>
+                            </div>
+                        </td>
+                    `;
+                });
+                html += "</tr>";
+            } 
+            else {
+                const child = current.evolvesTo[0];
+                html += /*html*/`
+                    <tr>
+                        <td colspan="2" class="py-1 border-l border-r border-[#aaa] dark:border-slate-700 bg-white dark:bg-slate-900 text-center text-xs">
+                            <div class="py-1 font-bold text-gray-700 dark:text-gray-400">${this.getConditionText(child.evolutionDetails)} ▼</div>
+                        </td>
+                    </tr>
+                `;
+                html += buildLinearRows(child);
+            }
+        }
+        return html;
+    };
+
+    return /*html*/`
+        <table class="border-collapse border border-[#aaa] dark:border-slate-700 bg-white dark:bg-slate-900 text-sm shadow-sm w-full max-w-[400px] transition-colors">
+            <thead>
+                <tr class="bg-[#cedff2] dark:bg-slate-800">
+                    <th colspan="2" class="border border-[#aaa] dark:border-slate-700 p-2 text-center font-serif dark:text-gray-200">Famille d'évolution</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${buildLinearRows(node)}
+            </tbody>
+        </table>
+    `;
   }
 }
 

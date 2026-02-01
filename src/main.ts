@@ -1,12 +1,12 @@
 import "./assets/styles.css";
 import {
-  getPokemon,
   getPokemonList,
   initAllPokemon,
 } from "./service/pokemonApi.ts";
 import { PokemonCard } from "./components/pokemonCard.ts";
 import { PaginationPokemon } from "./components/paginationPokemon.ts";
 import "./components/pokemonEvolution.ts";
+import "./components/pokemonDetails.ts";
 import {
   abilitySelector,
   generationSelector,
@@ -24,44 +24,83 @@ let index = 0;
 
 // #endregion
 
-// #region   ---------------        Struct Website         ----------------
+// #region   ---------------       Struct Website        ----------------
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
-  <div id="view-home">
-  <header class = "grid grid-cols-1 md:grid-cols-5 justify-center text-center p-2 bg-gray-600/40 sticky">
-    <nav class ="justify-self-start rounded-xl grid grid-cols-3 gap-2">
-        <select id="types" class ="bg-gray-500/20 p-2 text-white">
-            <option class ="bg-gray-800" value="all">Types</option>
-        </select>
-        <select id="generations" class ="bg-gray-500/20 text-white p-2">
-            <option class="bg-gray-800" value="all">Generation</option>
-        </select>
-        <select id="ability" class ="bg-gray-500/20 text-white p-2">
-            <option class ="bg-gray-800" value="all">Abilities</option>
-        </select>
-    </nav>
-    <div></div>
-    <h1 class = "text-blue-300 text-2xl font-extrabold uppercase tracking-widest animate-pulse">Poke Next</h1>
-    <button class ="bg-gray-600/50 w-50 justify-self-end rounded-3xl hover:scale-110 active:scale-95 text-white h-10" onclick="window.location.hash ='/party-create'">Créer une équipe</button>
-    <search class = "bg-gray-600/50 rounded-3xl justify-center md:justify-self-end h-10 pt-1">
-        <input id="search" placeholder="Pokemon... (Name ou #ID)" class = "outline-none pl-2.5 pr-2.5 pt-1 caret-[#ffffff] text-white ">
-    </search>
-  </header>
-  <main>
-        <pagination-pokemon class="flex justify-center gap-4 mt-8">
-<!--        Pagination-->
-        </pagination-pokemon>
-        <pokemon-card class ="grid grid-cols-2 md:grid-cols-5 justify-self-center">
-<!--        Pokémon list--> 
+  <div id="view-home" class="min-h-screen">
+    
+    <header class="sticky top-0 z-50 shadow-md transition-colors duration-300">
+        
+        <div class="bg-white dark:bg-slate-800 border-b border-[#a7d7f9] dark:border-slate-700 px-4 py-3 transition-colors">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                
+                <div class="flex items-center gap-2 cursor-pointer group" onclick="window.location.hash='#'">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Pok%C3%A9_Ball_icon.svg" class="w-8 h-8" alt="Logo">
+                    <h1 class="text-2xl font-serif font-bold text-[#222] dark:text-white tracking-wide group-hover:text-[#0645ad] dark:group-hover:text-blue-400 transition-colors">
+                        Poke Next
+                    </h1>
+                </div>
+
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <search class="relative w-full md:w-64">
+                        <input id="search" 
+                               placeholder="Rechercher..." 
+                               class="w-full border border-[#aaa] dark:border-slate-600 px-2 py-1 text-sm outline-none focus:border-[#0645ad] dark:focus:border-blue-400 focus:ring-1 focus:ring-[#0645ad] placeholder-gray-500 bg-[#f9f9f9] dark:bg-slate-700 dark:text-white transition-colors">
+                        <button class="absolute right-1 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-[#0645ad] dark:hover:text-blue-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </button>
+                    </search>
+
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors text-gray-600 dark:text-yellow-400 border border-transparent dark:border-slate-600">
+                        <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 100 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                        <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                    </button>
+
+                    <button class="bg-[#f0f0f0] dark:bg-slate-700 border border-[#aaa] dark:border-slate-500 px-3 py-1 text-sm font-bold text-[#0645ad] dark:text-blue-300 hover:bg-white dark:hover:bg-slate-600 transition-all whitespace-nowrap" 
+                            onclick="window.location.hash ='/party-create'">
+                        + Équipe
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#cedff2] dark:bg-slate-900 border-b border-[#a7d7f9] dark:border-slate-700 px-4 py-2 transition-colors">
+            <div class="max-w-7xl mx-auto">
+                <nav class="flex flex-wrap gap-2 items-center justify-center md:justify-start">
+                    <span class="text-xs font-bold text-[#0645ad] dark:text-blue-400 uppercase mr-2">Filtres :</span>
+                    
+                    <select id="types" class="bg-white dark:bg-slate-800 border border-[#aaa] dark:border-slate-600 text-sm px-2 py-1 cursor-pointer hover:border-[#0645ad] focus:outline-none text-[#222] dark:text-gray-200">
+                        <option value="all">Tous les Types</option>
+                    </select>
+
+                    <select id="generations" class="bg-white dark:bg-slate-800 border border-[#aaa] dark:border-slate-600 text-sm px-2 py-1 cursor-pointer hover:border-[#0645ad] focus:outline-none text-[#222] dark:text-gray-200">
+                        <option value="all">Toutes Générations</option>
+                    </select>
+
+                    <select id="ability" class="bg-white dark:bg-slate-800 border border-[#aaa] dark:border-slate-600 text-sm px-2 py-1 cursor-pointer hover:border-[#0645ad] focus:outline-none text-[#222] dark:text-gray-200 max-w-[150px] truncate">
+                        <option value="all">Tous Talents</option>
+                    </select>
+                </nav>
+            </div>
+        </div>
+
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4">
+        <pagination-pokemon class="flex justify-center mb-6"></pagination-pokemon>
+        
+        <pokemon-card class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 justify-items-center">
         </pokemon-card>
-  </main>
-</div>
+    </main>
+  </div>
 
-<div id="view-details" class="hidden">
-</div>
+  <div id="view-details" class="hidden">
+      <pokemon-details></pokemon-details>
+  </div>
 
-<div id="party-create" class="hidden">
-</div>
+  <div id="party-create" class="hidden">
+      <div class="text-center mt-10 dark:text-white">Page de création d'équipe</div>
+  </div>
 `;
 
 // #endregion
@@ -91,11 +130,16 @@ card.data = pokemonList;
 
 // #endregion
 
+// Dans main.ts
+pagination.total = currentList.length; // Important pour l'init
+pagination.currentList = currentList; // Pour que la pagination connaisse la liste
+
 // #region    ----------           Get Détails & Home ID       ------------
 
 const viewHome = document.getElementById("view-home") as HTMLDivElement;
 const viewDetails = document.getElementById("view-details") as HTMLDivElement;
 const partyCreate = document.getElementById("party-create") as HTMLDivElement;
+const pokemonDetails = document.querySelector("pokemon-details") as HTMLElement; // Selecteur du nouveau composant
 
 // #endregion
 
@@ -116,154 +160,7 @@ async function displayCreate() {
 
 // #region   ------------         Function to Render Pokémon Détails      --------------
 
-async function renderPokemonDetails(id: number) {
-  const p = await getPokemon(id);
-  if (!p) return;
 
-  const currentIndex = currentList.findIndex((pokemonItem) => {
-    const urlId = Number(pokemonItem.url.split("/").at(-2));
-    return urlId === id;
-  });
-
-  let prevId = null;
-  let nextId = null;
-  if (currentIndex !== -1) {
-    if (currentIndex > 0) {
-      const prevPokemon = currentList[currentIndex - 1];
-      prevId = Number(prevPokemon.url.split("/").at(-2));
-    }
-    if (currentIndex < currentList.length - 1) {
-      const nextPokemon = currentList[currentIndex + 1];
-      nextId = Number(nextPokemon.url.split("/").at(-2));
-    }
-  }
-  const cryUrl = p.cries.latest;
-  const typesHtml = p.types
-    .map(
-      (t) =>
-        /*html*/ `<span class="bg-gray-700 px-3 py-1 rounded-full text-sm">${t.type.name}</span>`,
-    )
-    .join("");
-  const statsHtml = p.stats
-    .map(
-      (s) => /*html*/ `
-        <div class="flex justify-between">
-            <span class="uppercase text-gray-400">${s.stat.name}:</span>
-            <span class="text-white font-bold">${s.base_stat}</span>
-        </div>
-    `,
-    )
-    .join("");
-
-  const html = /*html*/ `
-        <div class="mx-auto p-4">
-            <nav id="btn-nav" class="flex justify-between items-center mb-6">
-                <a href="#" class="flex items-center gap-2 text-white text-lg font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
-                    ← Liste
-                </a>
-<!---       ------------        Button Nav Next & Previous         ------------        --->
-                <div class="flex gap-4">
-                    ${
-                      prevId
-                        ? `
-                    <a href="#/pokemon/${prevId}" class="flex items-center gap-2 text-white font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
-                        <span>❮</span> <span class="hidden sm:inline">Précédent</span>
-                    </a>`
-                        : "<div></div>"
-                    }
-                    
-                    ${
-                      nextId
-                        ? `
-                    <a href="#/pokemon/${nextId}" class="flex items-center gap-2 text-white font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
-                        <span class="hidden sm:inline">Suivant</span> <span>❯</span>
-                    </a>`
-                        : ""
-                    }
-                </div>
-            </nav>
-<!---       ------------        Name & Sprites Pokémon         ------------        --->
-            <div class="flex flex-col items-center mt-4 text-white animate-fade-in">
-                <div class="flex items-center gap-4 mb-4">
-                    <h2 class="text-4xl md:text-5xl font-extrabold uppercase text-transparent bg-clip-text bg-linear-to-r from-blue-300 to-purple-400 drop-shadow-sm">
-                        ${p.name}
-                    </h2>
-                    <button id="btn-sound" class="bg-gray-700 hover:bg-blue-500 text-white p-3 rounded-full transition-all active:scale-95 shadow-lg" title="Play Cry">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 0 1 0 12.728M16.463 8.288a5.25 5.25 0 0 1 0 7.424M6.75 8.25l4.72-4.72a.75.75 0 0 1 1.28.53v15.88a.75.75 0 0 1-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 0 1 2.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75Z" />
-                        </svg>
-                    </button>
-                </div>
-                
-                <div class="relative group">
-                    <div class="absolute inset-0 bg-linear-to-tr from-blue-500/30 to-purple-500/30 blur-3xl rounded-full group-hover:bg-blue-500/40 transition-all duration-500"></div>
-                    <img class="relative w-72 h-72 md:w-96 md:h-96 z-10 drop-shadow-2xl hover:scale-105 transition-transform duration-500" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.id}.png" alt="${p.name}">
-                </div>
-                
-                <div class="flex flex-wrap justify-center gap-3 mt-8 mb-10 uppercase">
-                    ${typesHtml}
-                </div>
-<!---       ------------       Information General Pokémon          ------------        --->
-                <div class="grid md:grid-cols-2 gap-6 w-full max-w-5xl ">
-                    <div class="bg-gray-800/80 backdrop-blur-sm p-6 rounded-3xl border border-gray-700/50 shadow-xl">
-                        <h3 class="text-xl font-bold text-yellow-300 mb-6 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0 1 18 0z"></path></svg>
-                            Informations
-                        </h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-gray-700/30 p-4 rounded-xl text-center">
-                                <p class="text-gray-400 text-sm uppercase">Height</p>
-                                <p class="text-2xl font-bold">${p.height / 10} m</p>
-                            </div>
-                            <div class="bg-gray-700/30 p-4 rounded-xl text-center">
-                                <p class="text-gray-400 text-sm uppercase">Weight</p>
-                                <p class="text-2xl font-bold">${p.weight / 10} kg</p>
-                            </div>
-                        </div>
-                    </div>
-<!---       ------------        Stats Base Pokémon         ------------        --->
-                    <div class="bg-gray-800/80 backdrop-blur-sm p-6 rounded-3xl border border-gray-700/50 shadow-xl">
-                         <h3 class="text-xl font-bold text-yellow-300 mb-6 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                            Stats Base
-                         </h3>
-                         <div class="space-y-3">
-                            ${statsHtml}
-                         </div>
-                    </div>
-<!---       ------------        Evolution Chain Pokémon         ------------        --->
-                    <div class="bg-gray-800/80 rounded-3xl p-6">
-                        <h3 class="text-xl font-bold text-amber-200 mb-4 flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                            Evolution Chain
-                        </h3>
-                        
-                        <pokemon-evolution src="${p.species.url}"></pokemon-evolution>
-                    
-                    </div>
-                </div>
-            </div>
-        `;
-
-  const existingContent = viewDetails.querySelector(".pokemon-content");
-  if (existingContent) existingContent.remove();
-
-  const contentDiv = document.createElement("div");
-  contentDiv.className = "pokemon-content";
-  contentDiv.innerHTML = html;
-  viewDetails.appendChild(contentDiv);
-
-  //      ------------          Event Sound Cries Pokémon        ----------------
-
-  const btnSound = contentDiv.querySelector("#btn-sound");
-  if (btnSound && cryUrl) {
-    btnSound.addEventListener("click", () => {
-      const audio = new Audio(cryUrl);
-      audio.volume = 0.5; // Volume à 50%
-      audio.play().catch((e) => console.error("Erreur lecture audio:", e));
-    });
-  }
-}
 
 // #endregion
 
@@ -292,7 +189,27 @@ async function router() {
       viewHome.classList.add("hidden");
       partyCreate.classList.add("hidden");
       viewDetails.classList.remove("hidden");
-      await renderPokemonDetails(id);
+
+      // LOGIQUE DE NAVIGATION PRÉCÉDENT / SUIVANT
+      const currentIndex = currentList.findIndex((item) => {
+        const urlId = Number(item.url.split("/").at(-2));
+        return urlId === id;
+      });
+
+      let prevId = null;
+      let nextId = null;
+      if (currentIndex !== -1) {
+        if (currentIndex > 0) {
+          prevId = Number(currentList[currentIndex - 1].url.split("/").at(-2));
+        }
+        if (currentIndex < currentList.length - 1) {
+          nextId = Number(currentList[currentIndex + 1].url.split("/").at(-2));
+        }
+      }
+
+      pokemonDetails.setAttribute("pokemon-id", String(id));
+      pokemonDetails.setAttribute("prev-id", String(prevId));
+      pokemonDetails.setAttribute("next-id", String(nextId));
     }
   }
 
