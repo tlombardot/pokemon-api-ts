@@ -7,11 +7,11 @@ import { PokemonCard } from "./components/pokemonCard.ts";
 import { PaginationPokemon } from "./components/paginationPokemon.ts";
 import "./components/pokemonEvolution.ts";
 import "./components/pokemonDetails.ts";
-import {
-  abilitySelector,
-  generationSelector,
-  typesSelector,
-  updateFilter,
+import { 
+  abilitySelector, 
+  generationSelector, 
+  typesSelector, 
+  getFilteredList 
 } from "./utils/pokemonFilter.ts";
 
 // #region     --------------       Init Pokémon List & Data        ----------------
@@ -105,41 +105,67 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = /*html*/ `
 
 // #endregion
 
-// #region  -----------              Get Pagination & Pokémon Card ID          ----------------
+// #region -------------   Get Elements     ----------------------  
 
-const pagination = document.querySelector(
-  "pagination-pokemon",
-) as PaginationPokemon;
+const pagination = document.querySelector("pagination-pokemon") as PaginationPokemon;
 const card = document.querySelector("pokemon-card") as PokemonCard;
 const search = document.querySelector<HTMLInputElement>("#search");
-
-// #endregion
-
-// #region   -----------             Get Select Data           ----------------
-
-await typesSelector(currentList, fullList, index, limit);
-await generationSelector(currentList, fullList, index, limit);
-await abilitySelector(currentList, fullList, index, limit);
-
-//#endregion
-
-// #region   -----------            Get Pokémon List & Render It           ---------------
-
-const pokemonList = await getPokemonList(currentList, index, limit);
-card.data = pokemonList;
-
-// #endregion
-
-// Dans main.ts
-pagination.total = currentList.length; // Important pour l'init
-pagination.currentList = currentList; // Pour que la pagination connaisse la liste
-
-// #region    ----------           Get Détails & Home ID       ------------
-
 const viewHome = document.getElementById("view-home") as HTMLDivElement;
 const viewDetails = document.getElementById("view-details") as HTMLDivElement;
 const partyCreate = document.getElementById("party-create") as HTMLDivElement;
-const pokemonDetails = document.querySelector("pokemon-details") as HTMLElement; // Selecteur du nouveau composant
+const pokemonDetails = document.querySelector("pokemon-details") as HTMLElement;
+
+// #endregion
+
+// #region ---------------------   Init Selectors    ---------------------
+
+await typesSelector();
+await generationSelector();
+await abilitySelector();
+
+// #endregion
+
+// #region ------------------   Filtrage & Refresh   ------------------
+
+// Fonction
+async function handleFilterChange() {
+  const filteredList = await getFilteredList(fullList);
+  currentList = filteredList;
+  // On reset la pagination
+  pagination._offset = 0;
+  pagination.currentList = currentList;
+  pagination.total = currentList.length;
+
+  //On met à jour l'affichage des cartes
+  const pagedList = await getPokemonList(currentList, 0, limit);
+  card.data = pagedList;
+}
+
+// #endregion
+
+// #region -------------------    Listeners    --------------------------
+
+//Recherche
+search?.addEventListener("input", handleFilterChange);
+
+//Selects 
+const filterIds = ["types", "generations", "ability"];
+filterIds.forEach(id => {
+    document.getElementById(id)?.addEventListener("change", handleFilterChange);
+});
+
+//Pagination (Next/Prev)
+pagination.addEventListener("page-changed", async (e: any) => {
+  const { offset, limit } = e.detail;
+  const pagedList = await getPokemonList(currentList, offset, limit);
+  card.data = pagedList;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+pagination.total = currentList.length;
+pagination.currentList = currentList;
+const initialList = await getPokemonList(currentList, index, limit);
+card.data = initialList;
 
 // #endregion
 
@@ -155,12 +181,6 @@ async function displayCreate() {
     </div>
     `;
 }
-
-// #endregion
-
-// #region   ------------         Function to Render Pokémon Détails      --------------
-
-
 
 // #endregion
 
@@ -240,12 +260,3 @@ pagination.addEventListener("page-changed", async (e: any) => {
 
 // #endregion
 
-// #region     ---------------        Update Filter by Search Input         ---------------
-
-if (search) {
-  search.addEventListener("input", () => {
-    return updateFilter(currentList, fullList, index, limit);
-  });
-}
-
-// #endregion

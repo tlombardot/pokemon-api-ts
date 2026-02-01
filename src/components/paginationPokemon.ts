@@ -30,7 +30,6 @@ export class PaginationPokemon extends HTMLElement {
     const currentPage = Math.floor(this._offset / this._limit) + 1;
     const maxPages = Math.ceil(this._total / this._limit) || 1;
 
-    // Styles dynamiques Dark Mode
     const btnStyle = "bg-[#f9f9f9] dark:bg-slate-700 border border-[#aaa] dark:border-slate-500 text-[#0645ad] dark:text-blue-300 px-3 py-1 text-sm font-bold hover:bg-white dark:hover:bg-slate-600 hover:border-[#666] dark:hover:border-slate-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:text-gray-400 dark:disabled:text-gray-500 transition-colors cursor-pointer select-none";
     
     const inputStyle = "w-16 text-center border border-[#aaa] dark:border-slate-500 p-1 text-sm bg-white dark:bg-slate-900 text-black dark:text-white outline-none focus:border-[#0645ad] dark:focus:border-blue-400 transition-colors";

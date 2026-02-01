@@ -33,12 +33,12 @@ export class PokemonDetails extends HTMLElement {
     }
   }
 
-  // Initialisation de la liste pour l'autocomplétion (une seule fois)
+  // Initialisation de la liste pour l'autocomplétion
   private async initSearchData() {
       if (PokemonDetails.allPokemonCache.length > 0) return;
       
       try {
-          // On récupère une grande liste légère (juste nom et url)
+          // On récupère une grande liste légère (nom et url)
           const res = await fetch("https://pokeapi.co/api/v2/pokemon?limit=2000");
           const data = await res.json();
           PokemonDetails.allPokemonCache = data.results.map((p: any) => {
@@ -53,7 +53,7 @@ export class PokemonDetails extends HTMLElement {
       }
   }
 
-  // Méthode utilitaire pour générer les lignes du tableau (Wiki + Dark Mode)
+  // Méthode utilitaire pour générer les lignes du tableau
   private renderInfoRow(title: string, data: any[]) {
     return `
         <tr class="bg-[#cedff2] dark:bg-slate-800">
@@ -106,7 +106,7 @@ export class PokemonDetails extends HTMLElement {
        genderHtml = `<span style="color:blue">♂ ${(100 - femalePct)}%</span> / <span style="color:magenta">♀ ${femalePct}%</span>`;
     }
 
-    // --- LOGIQUE METIER (Identique au précédent) ---
+    // --- BackEnd Info Pokémon ---
     const typeRelations: { [key: string]: number } = {};
     const typesList = ["normal", "fire", "water", "electric", "grass", "ice", "fighting", "poison", "ground", "flying", "psychic", "bug", "rock", "ghost", "dragon", "steel", "dark", "fairy"];
     typesList.forEach(t => typeRelations[t] = 1);
@@ -399,13 +399,13 @@ export class PokemonDetails extends HTMLElement {
 
     // --- EVENTS ET LOGIQUE DE RECHERCHE ---
     
-    // 1. Audio
+    // Audio
     const btnSound = this.querySelector("#btn-sound");
     if (btnSound && p.cries.latest) {
       btnSound.addEventListener("click", () => new Audio(p.cries.latest).play().catch(console.error));
     }
 
-    // 2. Recherche Autocomplete
+    // Recherche Autocomplete
     const searchInput = this.querySelector("#wiki-search") as HTMLInputElement;
     const resultsContainer = this.querySelector("#search-results") as HTMLElement;
 
@@ -421,7 +421,7 @@ export class PokemonDetails extends HTMLElement {
             // Filtrage simple (Nom ou ID)
             const matches = PokemonDetails.allPokemonCache.filter(p => 
                 p.name.toLowerCase().includes(term) || String(p.id).includes(term)
-            ).slice(0, 10); // Limite à 10 résultats pour la perf
+            ).slice(0, 10); // Limite à 10
 
             if (matches.length > 0) {
                 resultsContainer.innerHTML = matches.map(m => `
@@ -439,7 +439,7 @@ export class PokemonDetails extends HTMLElement {
                         const targetId = div.getAttribute("data-id");
                         window.location.hash = `/pokemon/${targetId}`;
                         resultsContainer.classList.add("hidden");
-                        searchInput.value = ""; // Reset champ
+                        searchInput.value = "";
                     });
                 });
             } else {
