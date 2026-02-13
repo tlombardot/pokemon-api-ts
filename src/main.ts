@@ -1,4 +1,5 @@
 import "./assets/styles.css";
+import "./components/teamBuilder.ts";
 import {
   getPokemonList,
   initAllPokemon,
@@ -172,14 +173,10 @@ card.data = initialList;
 // #region    ----------        Function to Render Create Teams Pokémon       ------------
 
 async function displayCreate() {
-  partyCreate.innerHTML = /*html*/ `
-    <div class ="justify-self-center">
-      <a href="#" class="flex gap-2 text-white text-lg font-bold hover:text-blue-300 transition-colors bg-gray-800/50 px-4 py-2 rounded-full">
-                      <h1>
-      </a>
-      <p>Bonjour</p>
-    </div>
-    `;
+  // On vide le conteneur et on ajoute le composant
+  partyCreate.innerHTML = ""; 
+  const builder = document.createElement("team-builder");
+  partyCreate.appendChild(builder);
 }
 
 // #endregion

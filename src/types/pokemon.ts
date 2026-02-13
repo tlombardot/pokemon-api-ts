@@ -18,22 +18,22 @@ export interface Pokemon {
   name: string;
   weight: number;
   height: number;
-  base_experience: number; // Ajouté pour l'infobox
+  base_experience: number; 
   abilities: Ability[];
   sprites: Sprites;
   stats: Stats[];
   types: Types[];
   cries: Cries;
-  moves: PokemonMove[]; // Ajouté pour le tableau des attaques
+  moves: PokemonMove[]; // Move Pokémon
   species: {
     name: string;
     url: string;
   };
 }
 
-// --- ABILITIES (Talents) ---
+// --- Abilities du pokémon ---
 export interface Ability {
-  is_hidden: boolean; // Ajouté pour savoir si c'est un talent caché
+  is_hidden: boolean; // Talent caché
   slot: number;
   ability: {
     name: string;
@@ -41,7 +41,7 @@ export interface Ability {
   };
 }
 
-// --- MOVES (Attaques) ---
+// --- Moves du pokémon ---
 export interface PokemonMove {
   move: {
     name: string;
@@ -62,7 +62,7 @@ interface VersionGroupDetail {
   };
 }
 
-// --- SPRITES ---
+// --- Sprites du pokémon ---
 interface Sprites {
   front_default: string;
   front_shiny: string;
@@ -74,7 +74,7 @@ interface Sprites {
   };
 }
 
-// --- STATS ---
+// --- Stats du pokémon ---
 interface Stats {
   base_stat: number;
   effort: number;
@@ -84,7 +84,7 @@ interface Stats {
   };
 }
 
-// --- TYPES ---
+// --- Types ---
 interface Types {
   slot: number;
   type: {
@@ -98,7 +98,7 @@ interface Cries {
   legacy: string;
 }
 
-// --- EVOLUTION TREE ---
+// --- Evolution Tree du pokémon ---
 export interface EvoNode {
   name: string;
   id: string;
